@@ -8,6 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductDAO implements IProductDAO{
+
+    public static final String SELECT_ALL_PRODUCT = "select product.id as id,product.name as name,product.price as price,product.quality as quality,product.color as color,product.category_id,c.category as category from product join product.category c on c.id = product.category_id ";
+    public static final String CREATE_PRODUCT = "insert into product(name, price, quality, color, category_id) value (?,?,?,?,?);";
+    public static final String DELETE_PRODUCT = "delete from product where id=?";
+    public static final String EDIT_PRODUCT = "update product set name=?, set price=?, set quality=?, set color=?,set category_id=? where id=?";
+    public static final String SELECT_PRODUCT_BY_ID = "select product.id as id,product.name as name,product.price as price,product.quality as quality,product.color as color,product.category_id,c.category as category from product join product.category c on c.id = product.category_id where id=?";
+
     public ProductDAO() {
     }
     protected Connection getConnection(){
@@ -29,7 +36,21 @@ public class ProductDAO implements IProductDAO{
 
     @Override
     public void insert(Product product) throws SQLException {
-
+        System.out.println(CREATE_PRODUCT);
+        try(
+                Connection connection = getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(CREATE_PRODUCT);
+                ){
+            preparedStatement.setString(1,product.getName());
+            preparedStatement.setInt(2,product.getPrice());
+            preparedStatement.setInt(3,product.getQuality());
+            preparedStatement.setString(4,product.getColor());
+            preparedStatement.setInt(5,product.getCategory().getId());
+            System.out.println(preparedStatement);
+            preparedStatement.executeUpdate();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -38,7 +59,7 @@ public class ProductDAO implements IProductDAO{
         Category category = null;
         try(
                 Connection connection = getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("select product.id as id,product.name as name,product.price as price,product.quality as quality,product.color as color,product.category_id,c.category as category from product join product.category c on c.id = product.category_id where id=?;")
+                PreparedStatement preparedStatement = connection.prepareStatement(SELECT_PRODUCT_BY_ID)
                 ){
             preparedStatement.setInt(1,id);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -89,11 +110,30 @@ public class ProductDAO implements IProductDAO{
 
     @Override
     public boolean delete(int id) throws SQLException {
-        return false;
+        boolean rowDeleted;
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(DELETE_PRODUCT);) {
+            statement.setInt(1, id);
+            rowDeleted = statement.executeUpdate() > 0;
+        }
+        return rowDeleted;
     }
 
     @Override
     public boolean update(Product product) throws SQLException {
-        return false;
+        boolean rowUpdated;
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(EDIT_PRODUCT);) {
+            statement.setString(1, product.getName());
+            statement.setInt(2, product.getPrice());
+            statement.setInt(3, product.getQuality());
+            statement.setString(4,product.getColor());
+            statement.setInt(5,product.getCategory().getId());
+            statement.setString(6,product.getCategory().getCategory());
+            statement.setInt(7, product.getId());
+
+            rowUpdated = statement.executeUpdate() > 0;
+        }
+        return rowUpdated;
     }
 }

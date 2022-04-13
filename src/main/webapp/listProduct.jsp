@@ -17,6 +17,11 @@
 </center>
 <div align="center">
 <table border="1" cellpadding="5">
+    <caption>
+        <h2>
+            <a href="/product?action=create">Thêm sản phẩm</a>
+        </h2>
+    </caption>
 <tr>
     <th>ID</th>
     <th>Name</th>
@@ -33,8 +38,12 @@
     <td><c:out value="${product.price}"/></td>
     <td><c:out value="${product.quality}"/></td>
     <td><c:out value="${product.color}"/></td>
-    <td><c:out value="${category.category_id}"/></td>
-    <td><c:out value="${category.category}"/></td>
+    <td><c:out value="${product.category.id}"/></td>
+    <td><c:out value="${product.category.category}"/></td>
+        <td>
+            <a href="/product?action=edit&id=${product.id}">Edit</a>
+            <a href="/product?action=delete&id=${product.id}">Delete</a>
+        </td>
     </tr>
     </c:forEach>
 </table>
